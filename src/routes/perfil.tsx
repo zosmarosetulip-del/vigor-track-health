@@ -4,17 +4,18 @@ import { AppShell } from "@/components/AppShell";
 import { perfilPadrao, usePerfil } from "@/lib/store";
 import type { Perfil } from "@/lib/risk";
 import { MODELO_IDADE_MINIMA, triagem } from "@/lib/risk";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil e triagem de segurança — Vitalidade" },
+      { title: "{t.profile.eyebrow} de segurança — Vitalidade" },
       {
         name: "description",
         content:
           "Informe idade, sexo, histórico de quedas e condições relevantes para calibrar sua estratificação de risco e adaptar os testes.",
       },
-      { property: "og:title", content: "Perfil e triagem de segurança — Vitalidade" },
+      { property: "og:title", content: "{t.profile.eyebrow} de segurança — Vitalidade" },
       {
         property: "og:description",
         content: "Onboarding em menos de 5 minutos com triagem de contraindicações.",
@@ -29,6 +30,7 @@ function PaginaPerfil() {
   const [form, setForm] = useState<Perfil>(perfilPadrao);
   const [salvo, setSalvo] = useState(false);
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (perfil) setForm(perfil);
@@ -52,13 +54,10 @@ function PaginaPerfil() {
     <AppShell>
       <section className="mt-8 max-w-3xl">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-          Perfil e triagem
+          {t.profile.eyebrow}
         </p>
-        <h1 className="mt-3 font-display text-4xl">Seus dados basais</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-mute">
-          Usamos estas informações para escolher o protocolo de teste adequado, ajustar a
-          estratificação por covariáveis e sinalizar contraindicações antes de qualquer exercício.
-        </p>
+        <h1 className="mt-3 font-display text-4xl">{t.profile.heading}</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-mute">{t.profile.intro}</p>
 
         <form
           className="mt-8 space-y-6"
@@ -69,16 +68,16 @@ function PaginaPerfil() {
           }}
         >
           <div className="grid gap-5 sm:grid-cols-2">
-            <Campo rotulo="Nome">
+            <Campo rotulo={t.profile.name}>
               <input
                 className="entrada"
                 value={form.nome}
                 maxLength={80}
                 onChange={(e) => campo("nome", e.target.value)}
-                placeholder="Como quer ser chamado(a)"
+                placeholder={t.profile.namePlaceholder}
               />
             </Campo>
-            <Campo rotulo="Idade">
+            <Campo rotulo={t.profile.age}>
               <input
                 type="number"
                 min={18}
@@ -88,17 +87,17 @@ function PaginaPerfil() {
                 onChange={(e) => campo("idade", Number(e.target.value))}
               />
             </Campo>
-            <Campo rotulo="Sexo (para calibração do modelo)">
+            <Campo rotulo={t.profile.sex}>
               <select
                 className="entrada"
                 value={form.sexo}
                 onChange={(e) => campo("sexo", e.target.value as Perfil["sexo"])}
               >
-                <option value="feminino">Feminino</option>
-                <option value="masculino">Masculino</option>
+                <option value="feminino">{t.common.female}</option>
+                <option value="masculino">{t.common.male}</option>
               </select>
             </Campo>
-            <Campo rotulo="Nível de atividade física">
+            <Campo rotulo={t.profile.activity}>
               <select
                 className="entrada"
                 value={form.nivelAtividade}
@@ -106,13 +105,13 @@ function PaginaPerfil() {
                   campo("nivelAtividade", e.target.value as Perfil["nivelAtividade"])
                 }
               >
-                <option value="sedentario">Sedentário</option>
-                <option value="leve">Leve</option>
-                <option value="moderado">Moderado</option>
-                <option value="ativo">Ativo</option>
+                <option value="sedentario">{t.common.activity.sedentario}</option>
+                <option value="leve">{t.common.activity.leve}</option>
+                <option value="moderado">{t.common.activity.moderado}</option>
+                <option value="ativo">{t.common.activity.ativo}</option>
               </select>
             </Campo>
-            <Campo rotulo="Altura (cm)">
+            <Campo rotulo={t.profile.height}>
               <input
                 type="number"
                 min={120}
@@ -122,7 +121,7 @@ function PaginaPerfil() {
                 onChange={(e) => campo("alturaCm", Number(e.target.value))}
               />
             </Campo>
-            <Campo rotulo="Peso (kg)">
+            <Campo rotulo={t.profile.weight}>
               <input
                 type="number"
                 min={30}
@@ -135,25 +134,25 @@ function PaginaPerfil() {
           </div>
 
           <div className="rounded-3xl border border-border bg-surface p-6">
-            <h2 className="font-display text-xl">Triagem de segurança</h2>
+            <h2 className="font-display text-xl">{t.profile.safety}</h2>
             <div className="mt-4 space-y-3">
               <Marcador
-                rotulo="Uso bengala, andador ou outro auxílio para caminhar"
+                rotulo={t.profile.aid}
                 valor={form.usaAuxilioMarcha}
                 aoMudar={(v) => campo("usaAuxilioMarcha", v)}
               />
               <Marcador
-                rotulo="Sofri uma queda nos últimos 6 meses"
+                rotulo={t.profile.fall}
                 valor={form.quedaUltimos6Meses}
                 aoMudar={(v) => campo("quedaUltimos6Meses", v)}
               />
               <Marcador
-                rotulo="Passei por cirurgia recente (quadril, joelho, coluna)"
+                rotulo={t.profile.surgery}
                 valor={form.cirurgiaRecente}
                 aoMudar={(v) => campo("cirurgiaRecente", v)}
               />
               <Marcador
-                rotulo="Tenho doença cardiovascular diagnosticada"
+                rotulo={t.profile.cardio}
                 valor={form.doencaCardiovascular}
                 aoMudar={(v) => campo("doencaCardiovascular", v)}
               />
@@ -162,8 +161,7 @@ function PaginaPerfil() {
 
           {form.idade < MODELO_IDADE_MINIMA && (
             <p className="rounded-xl border border-terra/25 bg-terra/5 px-4 py-3 text-[12px] leading-relaxed text-ink/70">
-              O modelo prognóstico foi validado para 50 anos ou mais. Abaixo dessa idade, as
-              probabilidades serão exibidas com confiabilidade reduzida e intervalo ampliado.
+              {t.profile.underAge}
             </p>
           )}
 
@@ -181,7 +179,7 @@ function PaginaPerfil() {
               type="submit"
               className="rounded-full bg-brand px-7 py-3 text-[15px] font-semibold text-brand-foreground"
             >
-              Salvar perfil
+              {t.profile.save}
             </button>
             {salvo && (
               <button
@@ -189,7 +187,7 @@ function PaginaPerfil() {
                 onClick={() => navigate({ to: "/testes" })}
                 className="rounded-full border border-brand px-7 py-3 text-[15px] font-semibold text-brand"
               >
-                Ir para os testes →
+                {t.profile.goTests}
               </button>
             )}
           </div>
