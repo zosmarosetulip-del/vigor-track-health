@@ -2,7 +2,7 @@
 
 PRD — App de Estratificação de Risco e Longevidade Funcional (Força, Marcha e Equilíbrio)
 
-Autor: [preencher] Data: 24/08/2026 Status: rascunho Versão: 0.1
+Autor: Mauro Frank L. de Lima Data: 24/08/2026 Status: rascunho Versão: 0.1
 
 0. Nota importante sobre o escopo (leia antes de aprovar)
 
