@@ -41,7 +41,12 @@ function PaginaPerfil() {
     setSalvo(false);
   }
 
-  if (!hidratado) return <AppShell><div className="py-20" /></AppShell>;
+  if (!hidratado)
+    return (
+      <AppShell>
+        <div className="py-20" />
+      </AppShell>
+    );
 
   return (
     <AppShell>
