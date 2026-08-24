@@ -246,6 +246,8 @@ function CartaoMetrica({
   cor: string;
   barra: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="lg:col-span-4">
       <div className="rounded-3xl border border-border bg-surface p-6">
