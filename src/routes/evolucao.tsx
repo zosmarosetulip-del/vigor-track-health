@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useAvaliacoes } from "@/lib/store";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/evolucao")({
   head: () => ({
@@ -22,25 +23,22 @@ export const Route = createFileRoute("/evolucao")({
   component: PaginaEvolucao,
 });
 
-const areasEvolucao = ["FORÇA DE PREENSÃO", "VELOCIDADE DA MARCHA", "EQUILÍBRIO"] as const;
-
 function PaginaEvolucao() {
   const { avaliacoes, hidratado } = useAvaliacoes();
+  const { t } = useI18n();
+  const areasEvolucao = t.progress.areas;
   const temAvaliacoes = avaliacoes.length > 0;
 
   return (
     <AppShell>
       <section className="mt-8 max-w-3xl">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-          ACOMPANHAMENTO
+          {t.progress.eyebrow}
         </p>
         <h1 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl">
-          Veja sua <span className="italic text-brand">evolução funcional</span>
+          {t.progress.heading}
         </h1>
-        <p className="mt-4 text-[16px] leading-relaxed text-mute">
-          Compare suas medições ao longo do tempo e acompanhe mudanças na força, marcha e
-          equilíbrio.
-        </p>
+        <p className="mt-4 text-[16px] leading-relaxed text-mute">{t.progress.intro}</p>
       </section>
 
       <section className="mt-8 grid gap-4 md:grid-cols-3">
@@ -48,9 +46,7 @@ function PaginaEvolucao() {
           <article key={area} className="rounded-3xl border border-border bg-surface p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terra">{area}</p>
             <div className="mt-6 rounded-2xl border border-dashed border-border bg-background/60 p-5 text-[14px] text-mute">
-              {hidratado && temAvaliacoes
-                ? "Estrutura pronta para comparar medições reais em próximas versões."
-                : "Ainda não há medições"}
+              {hidratado && temAvaliacoes ? t.progress.ready : t.progress.empty}
             </div>
           </article>
         ))}
@@ -58,26 +54,23 @@ function PaginaEvolucao() {
 
       <section className="mt-8 rounded-3xl border border-border bg-surface p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terra">
-          Histórico de avaliações
+          {t.progress.history}
         </p>
-        <h2 className="mt-3 font-display text-3xl">Histórico de avaliações</h2>
+        <h2 className="mt-3 font-display text-3xl">{t.progress.history}</h2>
         {!hidratado || !temAvaliacoes ? (
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-mute">
-            Nenhuma avaliação registrada ainda. Complete sua primeira bateria de testes para começar
-            a acompanhar sua evolução.
+            {t.progress.noEvaluations}
           </p>
         ) : (
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-mute">
-            {avaliacoes.length} avaliação{avaliacoes.length === 1 ? "" : "ões"} registrada
-            {avaliacoes.length === 1 ? "" : "s"}. Os dados reais já estão disponíveis para futuras
-            visualizações comparativas.
+            {t.progress.count(avaliacoes.length)}
           </p>
         )}
         <Link
           to="/testes"
           className="mt-6 inline-block rounded-full bg-brand px-7 py-3 text-[15px] font-semibold text-brand-foreground"
         >
-          Fazer primeira avaliação
+          {t.progress.first}
         </Link>
       </section>
     </AppShell>

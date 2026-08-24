@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useAvaliacoes, usePerfil, formatarData } from "@/lib/store";
 import { calcularPercentis, calcularRisco, triagem } from "@/lib/risk";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,15 +24,11 @@ export const Route = createFileRoute("/")({
   component: Painel,
 });
 
-const testes = [
-  { n: 1, titulo: "Força de preensão", detalhe: "3 tentativas · maior valor usado" },
-  { n: 2, titulo: "Velocidade de marcha", detalhe: "4 m · cronômetro do app" },
-  { n: 3, titulo: "Equilíbrio", detalhe: "apoio unipodal · apoio próximo" },
-];
-
 function Painel() {
   const { perfil, hidratado } = usePerfil();
   const { ultima, avaliacoes } = useAvaliacoes();
+  const { t } = useI18n();
+  const testes = t.dashboard.tests;
 
   if (!hidratado)
     return (
@@ -45,20 +42,17 @@ function Painel() {
       <AppShell>
         <section className="mt-10 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-            Comece por aqui
+            {t.dashboard.startHere}
           </p>
           <h1 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl">
-            Monitore sua <span className="italic text-brand">função</span>, não a sua idade.
+            {t.dashboard.hero}
           </h1>
-          <p className="mt-4 text-[16px] leading-relaxed text-mute">
-            Em menos de 5 minutos você registra seu perfil e faz a primeira bateria de testes de
-            força, marcha e equilíbrio. Nenhum resultado é um diagnóstico.
-          </p>
+          <p className="mt-4 text-[16px] leading-relaxed text-mute">{t.dashboard.intro}</p>
           <Link
             to="/perfil"
             className="mt-7 inline-block rounded-full bg-brand px-7 py-3 text-[15px] font-semibold text-brand-foreground"
           >
-            Criar meu perfil
+            {t.dashboard.createProfile}
           </Link>
         </section>
       </AppShell>
@@ -76,7 +70,7 @@ function Painel() {
       <section className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-            Painel de risco relativo
+            {t.dashboard.relativeRisk}
           </p>
           <h1 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl">
             {temMedicao ? (
@@ -92,9 +86,7 @@ function Painel() {
                 para a sua faixa etária.
               </>
             ) : (
-              <>
-                Faça sua <span className="italic text-brand">primeira bateria</span> de testes.
-              </>
+              <>{t.dashboard.firstTests}</>
             )}
           </h1>
           <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-mute">
@@ -155,9 +147,9 @@ function Painel() {
         <div className="lg:col-span-5">
           <div className="rounded-3xl bg-brand-deep p-6 text-brand-foreground">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg">Próximos testes</h2>
+              <h2 className="font-display text-lg">{t.dashboard.nextTests}</h2>
               <span className="text-[11px] uppercase tracking-[0.15em] text-brand-foreground/60">
-                Bateria guiada
+                {t.dashboard.guidedBattery}
               </span>
             </div>
             <div className="mt-5 space-y-3">
@@ -182,7 +174,7 @@ function Painel() {
               to="/testes"
               className="mt-5 block w-full rounded-full bg-cream py-3 text-center text-sm font-semibold text-brand-deep"
             >
-              Iniciar bateria de testes
+              {t.dashboard.startBattery}
             </Link>
           </div>
         </div>
@@ -190,7 +182,7 @@ function Painel() {
 
       <section className="mt-10 grid gap-6 lg:grid-cols-12">
         <CartaoMetrica
-          titulo="Força de preensão"
+          titulo={t.dashboard.grip}
           rotulo="percentil"
           valor={ultima?.forcaKg != null ? ultima.forcaKg.toFixed(0) : "—"}
           unidade="kg"
@@ -199,7 +191,7 @@ function Painel() {
           barra="bg-brand"
         />
         <CartaoMetrica
-          titulo="Velocidade de marcha"
+          titulo={t.dashboard.gait}
           rotulo="percentil"
           valor={ultima?.marchaMs != null ? ultima.marchaMs.toFixed(2) : "—"}
           unidade="m/s"
@@ -208,8 +200,8 @@ function Painel() {
           barra="bg-terra"
         />
         <CartaoMetrica
-          titulo="Equilíbrio"
-          rotulo="apoio unipodal"
+          titulo={t.dashboard.balance}
+          rotulo={t.dashboard.singleLeg}
           valor={ultima?.equilibrioS != null ? ultima.equilibrioS.toFixed(0) : "—"}
           unidade="seg"
           percentil={p.equilibrio}
@@ -221,20 +213,16 @@ function Painel() {
       <section className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-border bg-surface p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-            Plano adaptativo
+            {t.dashboard.adaptivePlan}
           </p>
-          <h2 className="mt-2 font-display text-2xl">Sua semana de movimento está pronta</h2>
-          <p className="mt-1 text-sm text-mute">
-            {avaliacoes.length}{" "}
-            {avaliacoes.length === 1 ? "avaliação registrada" : "avaliações registradas"} ·
-            reavaliação sugerida em 4–6 semanas
-          </p>
+          <h2 className="mt-2 font-display text-2xl">{t.dashboard.weekReady}</h2>
+          <p className="mt-1 text-sm text-mute">{t.dashboard.evaluations(avaliacoes.length)}</p>
         </div>
         <Link
           to="/plano"
           className="rounded-full bg-brand px-6 py-3 text-sm font-semibold text-brand-foreground"
         >
-          Ver plano de exercícios
+          {t.dashboard.viewPlan}
         </Link>
       </section>
     </AppShell>
@@ -269,14 +257,14 @@ function CartaoMetrica({
           {valor} <span className="text-xl text-mute">{unidade}</span>
         </p>
         <p className="mt-1 text-sm text-mute">
-          {percentil != null ? `${percentil}º percentil da sua faixa` : "sem medição registrada"}
+          {percentil != null ? `${percentil}${t.common.percentileRange}` : t.common.noMeasurement}
         </p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-sand">
           <div className={`h-full rounded-full ${barra}`} style={{ width: `${percentil ?? 0}%` }} />
         </div>
         <div className="mt-2 flex justify-between text-[10px] uppercase tracking-[0.1em] text-mute">
-          <span>Baixo</span>
-          <span>Alto</span>
+          <span>{t.common.low}</span>
+          <span>{t.common.high}</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/plano")({
   head: () => ({
@@ -21,38 +22,17 @@ export const Route = createFileRoute("/plano")({
   component: PaginaPlano,
 });
 
-const areasPlano = [
-  {
-    titulo: "FORÇA",
-    descricao: "Exercícios progressivos para força de preensão e membros inferiores.",
-    status: "Aguardando avaliação",
-  },
-  {
-    titulo: "MARCHA",
-    descricao: "Exercícios para melhorar velocidade, cadência e capacidade funcional.",
-    status: "Aguardando avaliação",
-  },
-  {
-    titulo: "EQUILÍBRIO",
-    descricao: "Exercícios progressivos de estabilidade e equilíbrio.",
-    status: "Aguardando avaliação",
-  },
-] as const;
-
 function PaginaPlano() {
+  const { t } = useI18n();
+  const areasPlano = t.plan.areas;
   return (
     <AppShell>
       <section className="mt-8 max-w-3xl">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
-          PLANO FUNCIONAL
+          {t.plan.eyebrow}
         </p>
-        <h1 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl">
-          Seu plano de <span className="italic text-brand">evolução</span>
-        </h1>
-        <p className="mt-4 text-[16px] leading-relaxed text-mute">
-          Um plano progressivo baseado nos seus resultados de força, marcha e equilíbrio. O objetivo
-          é melhorar sua função com segurança e acompanhar sua evolução ao longo do tempo.
-        </p>
+        <h1 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl">{t.plan.heading}</h1>
+        <p className="mt-4 text-[16px] leading-relaxed text-mute">{t.plan.intro}</p>
       </section>
 
       <section className="mt-8 grid gap-4 md:grid-cols-3">
@@ -71,18 +51,17 @@ function PaginaPlano() {
 
       <section className="mt-8 rounded-3xl bg-brand-deep p-6 text-brand-foreground">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-foreground/60">
-          Próxima reavaliação
+          {t.plan.reassessment}
         </p>
-        <h2 className="mt-3 font-display text-3xl">Próxima reavaliação</h2>
+        <h2 className="mt-3 font-display text-3xl">{t.plan.reassessment}</h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-brand-foreground/75">
-          Após completar os testes funcionais, o aplicativo poderá recomendar uma reavaliação em 4–6
-          semanas.
+          {t.plan.reassessmentText}
         </p>
         <Link
           to="/testes"
           className="mt-6 inline-block rounded-full bg-cream px-7 py-3 text-[15px] font-semibold text-brand-deep"
         >
-          Começar avaliação
+          {t.plan.startAssessment}
         </Link>
       </section>
     </AppShell>
