@@ -33,7 +33,12 @@ function Painel() {
   const { perfil, hidratado } = usePerfil();
   const { ultima, avaliacoes } = useAvaliacoes();
 
-  if (!hidratado) return <AppShell><div className="py-20" /></AppShell>;
+  if (!hidratado)
+    return (
+      <AppShell>
+        <div className="py-20" />
+      </AppShell>
+    );
 
   if (!perfil) {
     return (
@@ -132,8 +137,8 @@ function Painel() {
 
           {risco.foraDeValidacao && (
             <div className="mt-3 rounded-xl border border-border bg-surface px-4 py-3 text-[12px] leading-relaxed text-mute">
-              Seu perfil está fora da faixa etária em que o modelo foi validado (50 anos ou mais).
-              A confiabilidade da estimativa é reduzida e o intervalo de incerteza foi ampliado.
+              Seu perfil está fora da faixa etária em que o modelo foi validado (50 anos ou mais). A
+              confiabilidade da estimativa é reduzida e o intervalo de incerteza foi ampliado.
             </div>
           )}
 
@@ -157,10 +162,7 @@ function Painel() {
             </div>
             <div className="mt-5 space-y-3">
               {testes.map((t) => (
-                <div
-                  key={t.n}
-                  className="flex items-center gap-3 rounded-2xl bg-cream/10 p-3"
-                >
+                <div key={t.n} className="flex items-center gap-3 rounded-2xl bg-cream/10 p-3">
                   <div
                     className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${
                       t.n === 1 ? "bg-terra/90" : "bg-cream/15"
@@ -223,7 +225,8 @@ function Painel() {
           </p>
           <h2 className="mt-2 font-display text-2xl">Sua semana de movimento está pronta</h2>
           <p className="mt-1 text-sm text-mute">
-            {avaliacoes.length} {avaliacoes.length === 1 ? "avaliação registrada" : "avaliações registradas"} ·
+            {avaliacoes.length}{" "}
+            {avaliacoes.length === 1 ? "avaliação registrada" : "avaliações registradas"} ·
             reavaliação sugerida em 4–6 semanas
           </p>
         </div>

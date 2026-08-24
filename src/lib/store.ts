@@ -7,6 +7,11 @@ export interface Avaliacao extends Medicoes {
   protocoloForca?: string;
   tentativasForca?: number[];
   protocoloMarcha?: string;
+  sensoresMarcha?: {
+    amostras: number;
+    picoAceleracaoMs2: number;
+    cadenciaEstimadaPpm?: number;
+  };
 }
 
 const CHAVE_PERFIL = "vitalidade.perfil";

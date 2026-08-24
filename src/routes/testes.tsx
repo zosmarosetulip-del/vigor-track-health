@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   Bluetooth,
@@ -67,6 +67,7 @@ function PaginaTestes() {
   const [maoDominante, setMaoDominante] = useState<"direita" | "esquerda">("direita");
   const [tempos, setTempos] = useState<number[]>([]);
   const [equilibrio, setEquilibrio] = useState<number | null>(null);
+  const sensoresMarcha = useSensoresMarcha();
 
   const cronoMarcha = useCronometro();
   const cronoEquilibrio = useCronometro();
@@ -115,6 +116,7 @@ function PaginaTestes() {
   const marchaFinal = velocidades.length
     ? velocidades.reduce((a, b) => a + b, 0) / velocidades.length
     : undefined;
+  const resumoSensoresMarcha = sensoresMarcha.resumo;
 
   const podeSalvar = maiorForca != null || marchaFinal != null || equilibrio != null;
 
@@ -230,7 +232,10 @@ function PaginaTestes() {
           </span>
           {!cronoMarcha.rodando ? (
             <button
-              onClick={cronoMarcha.iniciar}
+              onClick={() => {
+                sensoresMarcha.iniciar();
+                cronoMarcha.iniciar();
+              }}
               className="rounded-full bg-brand px-6 py-3 text-sm font-semibold text-brand-foreground"
             >
               Iniciar
@@ -239,6 +244,7 @@ function PaginaTestes() {
             <button
               onClick={() => {
                 cronoMarcha.parar();
+                sensoresMarcha.parar();
                 if (cronoMarcha.segundos > 0.5) {
                   setTempos((t) => [...t, cronoMarcha.segundos]);
                 }
@@ -252,6 +258,7 @@ function PaginaTestes() {
           <button
             onClick={() => {
               cronoMarcha.zerar();
+              sensoresMarcha.zerar();
               setTempos([]);
             }}
             className="text-sm text-mute underline"
@@ -279,6 +286,48 @@ function PaginaTestes() {
             Velocidade média: <strong>{marchaFinal.toFixed(2)} m/s</strong>
           </p>
         )}
+        <div className="mt-4 rounded-2xl border border-brand/20 bg-brand/5 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-ink">Sensores do smartphone</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-mute">
+                Opcional no MVP: autorize movimento no celular, coloque o aparelho próximo à cintura
+                e o Vitalidade registra acelerômetro/giroscópio junto com o cronômetro. A velocidade
+                continua sendo calculada por 4 m ÷ tempo até validação clínica do algoritmo.
+              </p>
+            </div>
+            {sensoresMarcha.precisaPermissao && (
+              <button
+                type="button"
+                onClick={sensoresMarcha.solicitarPermissao}
+                className="rounded-full border border-brand/30 px-4 py-2 text-xs font-semibold text-brand"
+              >
+                Autorizar sensores
+              </button>
+            )}
+          </div>
+          <div className="mt-3 grid gap-2 text-[12px] text-mute sm:grid-cols-3">
+            <p>
+              Status: <strong className="text-ink">{sensoresMarcha.status}</strong>
+            </p>
+            <p>
+              Amostras: <strong className="text-ink">{resumoSensoresMarcha.amostras}</strong>
+            </p>
+            <p>
+              Pico:{" "}
+              <strong className="text-ink">
+                {resumoSensoresMarcha.picoAceleracaoMs2.toFixed(2)} m/s²
+              </strong>
+            </p>
+          </div>
+          {resumoSensoresMarcha.cadenciaEstimadaPpm != null && (
+            <p className="mt-2 text-[12px] text-mute">
+              Cadência exploratória:{" "}
+              <strong className="text-ink">{resumoSensoresMarcha.cadenciaEstimadaPpm}</strong>{" "}
+              passos/min.
+            </p>
+          )}
+        </div>
         <p className="mt-4 text-[12px] leading-relaxed text-mute">
           GPS não é usado como medida principal neste teste curto: para 4 metros, sensores inerciais
           e um protocolo padronizado tendem a ser mais adequados do que localização externa.
@@ -356,7 +405,11 @@ function PaginaTestes() {
               equilibrioS: equilibrio ?? undefined,
               protocoloForca: `dinamômetro manual · mão ${maoDominante} · ${valoresForca.length} tentativas · maior valor`,
               tentativasForca: valoresForca,
-              protocoloMarcha: "4 m com zona de aceleração · cronômetro do app",
+              protocoloMarcha:
+                resumoSensoresMarcha.amostras > 0
+                  ? "4 m com zona de aceleração · cronômetro do app · acelerômetro/giroscópio exploratório"
+                  : "4 m com zona de aceleração · cronômetro do app",
+              sensoresMarcha: resumoSensoresMarcha.amostras > 0 ? resumoSensoresMarcha : undefined,
             });
             navigate({ to: "/" });
           }}
@@ -399,6 +452,90 @@ function PaginaTestes() {
       </section>
     </AppShell>
   );
+}
+
+function useSensoresMarcha() {
+  const [status, setStatus] = useState("aguardando autorização");
+  const [ativo, setAtivo] = useState(false);
+  const [amostras, setAmostras] = useState<number[]>([]);
+  const inicio = useRef<number | null>(null);
+  const ultimoPico = useRef(0);
+  const passos = useRef(0);
+
+  const precisaPermissao =
+    typeof window !== "undefined" &&
+    typeof DeviceMotionEvent !== "undefined" &&
+    "requestPermission" in DeviceMotionEvent;
+
+  async function solicitarPermissao() {
+    try {
+      const evento = DeviceMotionEvent as typeof DeviceMotionEvent & {
+        requestPermission?: () => Promise<"granted" | "denied">;
+      };
+      const resposta = await evento.requestPermission?.();
+      setStatus(resposta === "granted" ? "sensores autorizados" : "permissão negada");
+    } catch {
+      setStatus("não foi possível autorizar sensores");
+    }
+  }
+
+  useEffect(() => {
+    if (!ativo || typeof window === "undefined" || typeof DeviceMotionEvent === "undefined") {
+      return;
+    }
+
+    setStatus("coletando sensores");
+    inicio.current = performance.now();
+    ultimoPico.current = 0;
+    passos.current = 0;
+
+    const onMotion = (evento: DeviceMotionEvent) => {
+      const a = evento.accelerationIncludingGravity;
+      if (!a) return;
+      const magnitude = Math.hypot(a.x ?? 0, a.y ?? 0, a.z ?? 0);
+      const agora = performance.now();
+      setAmostras((atuais) => [...atuais.slice(-119), magnitude]);
+
+      if (magnitude > 12 && agora - ultimoPico.current > 300) {
+        passos.current += 1;
+        ultimoPico.current = agora;
+      }
+    };
+
+    window.addEventListener("devicemotion", onMotion);
+    return () => window.removeEventListener("devicemotion", onMotion);
+  }, [ativo]);
+
+  const resumo = useMemo(() => {
+    const picoAceleracaoMs2 = amostras.length ? Math.max(...amostras) : 0;
+    const duracaoMin = inicio.current ? (performance.now() - inicio.current) / 60000 : 0;
+    return {
+      amostras: amostras.length,
+      picoAceleracaoMs2,
+      cadenciaEstimadaPpm:
+        duracaoMin > 0 && passos.current > 0 ? Math.round(passos.current / duracaoMin) : undefined,
+    };
+  }, [amostras]);
+
+  return {
+    status,
+    precisaPermissao,
+    resumo,
+    solicitarPermissao,
+    iniciar: () => {
+      setAmostras([]);
+      setAtivo(true);
+    },
+    parar: () => {
+      setAtivo(false);
+      setStatus(amostras.length > 0 ? "coleta concluída" : "sem amostras capturadas");
+    },
+    zerar: () => {
+      setAtivo(false);
+      setAmostras([]);
+      setStatus("aguardando autorização");
+    },
+  };
 }
 
 function CartaoTecnologia({

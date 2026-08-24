@@ -128,19 +128,18 @@ export function calcularRisco(perfil: Perfil, m: Medicoes): ResultadoRisco {
     return {
       horizonteAnos: anos,
       probabilidade: Math.round(s),
-      ic: [
-        Math.max(0, Math.round(s - amplitude)),
-        Math.min(99, Math.round(s + amplitude)),
-      ] as [number, number],
+      ic: [Math.max(0, Math.round(s - amplitude)), Math.min(99, Math.round(s + amplitude))] as [
+        number,
+        number,
+      ],
     };
   });
 
   const p = calcularPercentis(perfil, m);
   const media =
-    [p.forca, p.marcha, p.equilibrio].filter((v): v is number => v != null).reduce(
-      (a, b, _i, arr) => a + b / arr.length,
-      0,
-    ) || 50;
+    [p.forca, p.marcha, p.equilibrio]
+      .filter((v): v is number => v != null)
+      .reduce((a, b, _i, arr) => a + b / arr.length, 0) || 50;
 
   const categoria =
     media >= 60
@@ -197,9 +196,8 @@ export function triagem(perfil: Perfil): Alerta[] {
 
 export function nivelInicial(p: Percentis): 1 | 2 | 3 {
   const media =
-    [p.forca, p.marcha, p.equilibrio].filter((v): v is number => v != null).reduce(
-      (a, b, _i, arr) => a + b / arr.length,
-      0,
-    ) || 50;
+    [p.forca, p.marcha, p.equilibrio]
+      .filter((v): v is number => v != null)
+      .reduce((a, b, _i, arr) => a + b / arr.length, 0) || 50;
   return media >= 65 ? 3 : media >= 35 ? 2 : 1;
 }
