@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EvolucaoRouteImport } from './routes/evolucao'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PlanoRouteImport } from './routes/plano'
 import { Route as TestesRouteImport } from './routes/testes'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +20,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvolucaoRoute = EvolucaoRouteImport.update({
+  id: '/evolucao',
+  path: '/evolucao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanoRoute = PlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestesRoute = TestesRouteImport.update({
@@ -31,31 +43,39 @@ const TestesRoute = TestesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/evolucao': typeof EvolucaoRoute
   '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
   '/testes': typeof TestesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/evolucao': typeof EvolucaoRoute
   '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
   '/testes': typeof TestesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/evolucao': typeof EvolucaoRoute
   '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
   '/testes': typeof TestesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/perfil' | '/testes'
+  fullPaths: '/' | '/evolucao' | '/perfil' | '/plano' | '/testes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/perfil' | '/testes'
-  id: '__root__' | '/' | '/perfil' | '/testes'
+  to: '/' | '/evolucao' | '/perfil' | '/plano' | '/testes'
+  id: '__root__' | '/' | '/evolucao' | '/perfil' | '/plano' | '/testes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EvolucaoRoute: typeof EvolucaoRoute
   PerfilRoute: typeof PerfilRoute
+  PlanoRoute: typeof PlanoRoute
   TestesRoute: typeof TestesRoute
 }
 
@@ -68,11 +88,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/evolucao': {
+      id: '/evolucao'
+      path: '/evolucao'
+      fullPath: '/evolucao'
+      preLoaderRoute: typeof EvolucaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plano': {
+      id: '/plano'
+      path: '/plano'
+      fullPath: '/plano'
+      preLoaderRoute: typeof PlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/testes': {
@@ -87,7 +121,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EvolucaoRoute: EvolucaoRoute,
   PerfilRoute: PerfilRoute,
+  PlanoRoute: PlanoRoute,
   TestesRoute: TestesRoute,
 }
 export const routeTree = rootRouteImport
