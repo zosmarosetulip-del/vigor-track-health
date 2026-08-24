@@ -1,5 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import {
+  Activity,
+  Bluetooth,
+  Camera,
+  Footprints,
+  Gauge,
+  HeartPulse,
+  MapPin,
+  Smartphone,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAvaliacoes, usePerfil } from "@/lib/store";
 import { triagem } from "@/lib/risk";
@@ -61,7 +71,12 @@ function PaginaTestes() {
   const cronoMarcha = useCronometro();
   const cronoEquilibrio = useCronometro();
 
-  if (!hidratado) return <AppShell><div className="py-20" /></AppShell>;
+  if (!hidratado)
+    return (
+      <AppShell>
+        <div className="py-20" />
+      </AppShell>
+    );
 
   if (!perfil) {
     return (
@@ -114,6 +129,19 @@ function PaginaTestes() {
           Faça os testes com calçado habitual, em piso plano e sem obstáculos. Tenha uma parede ou
           cadeira ao alcance da mão. Interrompa em caso de tontura ou dor.
         </p>
+        <div className="mt-5 rounded-2xl border border-brand/20 bg-brand/5 p-4">
+          <div className="flex items-start gap-3">
+            <Smartphone className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
+            <div>
+              <h2 className="text-sm font-semibold text-ink">Smartphone como sensor funcional</h2>
+              <p className="mt-1 text-[13px] leading-relaxed text-mute">
+                O Vitalidade começa com cronômetro e registro manual, mas o protocolo já prepara a
+                evolução para acelerômetro e giroscópio no teste de marcha. Mantenha o telefone no
+                bolso, cinto ou próximo à cintura para reduzir variação entre reavaliações.
+              </p>
+            </div>
+          </div>
+        </div>
         {alertas.map((a) => (
           <p
             key={a.titulo}
@@ -164,9 +192,9 @@ function PaginaTestes() {
         </div>
         {maiorForca != null && (
           <p className="mt-4 text-[14px] text-ink">
-            Maior valor <strong>{maiorForca.toFixed(1)} kg</strong> · média{" "}
-            {mediaForca!.toFixed(1)} kg — o maior valor é o utilizado no cálculo de risco, conforme
-            prática clínica de referência.
+            Maior valor <strong>{maiorForca.toFixed(1)} kg</strong> · média {mediaForca!.toFixed(1)}{" "}
+            kg — o maior valor é o utilizado no cálculo de risco, conforme prática clínica de
+            referência.
           </p>
         )}
       </section>
@@ -174,7 +202,24 @@ function PaginaTestes() {
       {/* 2. Marcha */}
       <section className="mt-6 rounded-3xl border border-border bg-surface p-6">
         <Cabecalho numero={2} titulo="Velocidade de marcha" subtitulo="Percurso de 4 metros" />
-        <ol className="mt-3 space-y-2 text-[14px] leading-relaxed text-mute">
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <CartaoTecnologia
+            icone={Gauge}
+            titulo="Agora"
+            texto="Cronômetro do app calcula velocidade = 4 m ÷ tempo e salva a média das tentativas."
+          />
+          <CartaoTecnologia
+            icone={Activity}
+            titulo="Próximo passo"
+            texto="Acelerômetro e giroscópio podem detectar início, fim, passos, cadência e regularidade."
+          />
+          <CartaoTecnologia
+            icone={HeartPulse}
+            titulo="Longitudinal"
+            texto="HealthKit e Health Connect podem complementar a tendência diária de caminhada na fase 2."
+          />
+        </div>
+        <ol className="mt-4 space-y-2 text-[14px] leading-relaxed text-mute">
           <li>1. Marque 4 m, com 1 m extra de aceleração antes e desaceleração depois.</li>
           <li>2. Inicie parado. Toque em “Iniciar” ao cruzar a primeira marca.</li>
           <li>3. Toque em “Parar” ao cruzar a marca dos 4 m. Faça 2 tentativas.</li>
@@ -234,6 +279,10 @@ function PaginaTestes() {
             Velocidade média: <strong>{marchaFinal.toFixed(2)} m/s</strong>
           </p>
         )}
+        <p className="mt-4 text-[12px] leading-relaxed text-mute">
+          GPS não é usado como medida principal neste teste curto: para 4 metros, sensores inerciais
+          e um protocolo padronizado tendem a ser mais adequados do que localização externa.
+        </p>
       </section>
 
       {/* 3. Equilíbrio */}
@@ -243,6 +292,18 @@ function PaginaTestes() {
           Fique de pé perto de uma parede ou cadeira. Levante um pé do chão e mantenha o equilíbrio
           sem apoiar-se. Pare ao tocar o chão, apoiar-se ou completar 45 segundos.
         </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <CartaoTecnologia
+            icone={Camera}
+            titulo="Fase posterior"
+            texto="Câmera com estimativa de pose pode acompanhar tronco, quadril, joelho e tornozelo."
+          />
+          <CartaoTecnologia
+            icone={Footprints}
+            titulo="Validação clínica"
+            texto="A detecção corporal não substitui automaticamente uma medida prognóstica sem validação local."
+          />
+        </div>
         <div className="mt-5 flex flex-wrap items-center gap-4">
           <span className="font-display text-5xl tabular-nums text-brand-deep">
             {cronoEquilibrio.segundos.toFixed(1)}s
@@ -307,7 +368,58 @@ function PaginaTestes() {
           Os dados ficam no seu dispositivo e o registro funciona offline.
         </span>
       </div>
+
+      <section className="mt-8 rounded-3xl border border-border bg-surface p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">
+          Roadmap técnico
+        </p>
+        <h2 className="mt-2 font-display text-2xl">Tecnologias planejadas para o Vitalidade</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <CartaoTecnologia
+            icone={Bluetooth}
+            titulo="Força"
+            texto="MVP com dinamômetro manual e digitação; Bluetooth fica para integração futura."
+          />
+          <CartaoTecnologia
+            icone={Smartphone}
+            titulo="Marcha 4 m"
+            texto="MVP com cronômetro; sensores do telefone são a primeira evolução instrumental."
+          />
+          <CartaoTecnologia
+            icone={HeartPulse}
+            titulo="Atividade diária"
+            texto="HealthKit no iPhone e Health Connect no Android entram como acompanhamento longitudinal."
+          />
+          <CartaoTecnologia
+            icone={MapPin}
+            titulo="GPS"
+            texto="Reservado para caminhadas externas maiores, não para o teste clínico curto de 4 metros."
+          />
+        </div>
+      </section>
     </AppShell>
+  );
+}
+
+function CartaoTecnologia({
+  icone: Icone,
+  titulo,
+  texto,
+}: {
+  icone: typeof Smartphone;
+  titulo: string;
+  texto: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-cream/35 p-4">
+      <div className="flex items-start gap-3">
+        <Icone className="mt-0.5 size-5 shrink-0 text-terra" aria-hidden="true" />
+        <div>
+          <p className="text-sm font-semibold text-ink">{titulo}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-mute">{texto}</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
